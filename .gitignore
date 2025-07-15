@@ -1,0 +1,36 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output & logs
+/tmp/
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+.air.toml
+
+# Dependency directories
+vendor/
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+/server
+/server.exe
+
+# GORM migration timestamps
+/database/migrations/*.tmp
