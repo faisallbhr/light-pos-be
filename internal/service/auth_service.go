@@ -6,6 +6,7 @@ import (
 
 	"github.com/faisallbhr/light-pos-be/internal/dto"
 	"github.com/faisallbhr/light-pos-be/internal/repository"
+	"github.com/faisallbhr/light-pos-be/internal/service/mapper"
 	"github.com/faisallbhr/light-pos-be/pkg/errorsx"
 	"github.com/faisallbhr/light-pos-be/pkg/jwtx"
 	"golang.org/x/crypto/bcrypt"
@@ -52,12 +53,10 @@ func (s *authService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Lo
 		return nil, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
+	userMapper := mapper.ToUserResponse(user)
+
 	return &dto.LoginResponse{
-		User: dto.UserResponse{
-			ID:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
-		},
+		User: *userMapper,
 		Token: dto.TokenResponse{
 			Access:  access,
 			Refresh: refresh,
