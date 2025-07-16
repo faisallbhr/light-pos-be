@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/faisallbhr/light-pos-be/internal/dto"
+	"github.com/faisallbhr/light-pos-be/internal/entities"
 	"github.com/faisallbhr/light-pos-be/internal/repository"
 	"github.com/faisallbhr/light-pos-be/internal/service/mapper"
 	"github.com/faisallbhr/light-pos-be/pkg/errorsx"
@@ -14,12 +15,14 @@ import (
 )
 
 type UserService interface {
+	CreateUser(ctx context.Context, req *dto.UserCreateRequest) error
 	Me(ctx context.Context, userID uint) (*dto.UserResponse, error)
 	GetAllUsers(ctx context.Context, params *httpx.QueryParams) ([]*dto.UserResponse, int64, error)
 	GetUserByID(ctx context.Context, id uint) (*dto.UserResponse, error)
 	UpdateUser(ctx context.Context, id uint, req *dto.UserUpdateRequest) (*dto.UserResponse, error)
 	ChangePassword(ctx context.Context, id uint, req *dto.ChangePasswordRequest) error
 	DeleteUser(ctx context.Context, id uint) error
+	AssignRoles(ctx context.Context, userID uint, roleIDs *dto.AssignRolesRequest) error
 }
 
 type userService struct {
@@ -43,6 +46,38 @@ func (s *userService) Me(ctx context.Context, userID uint) (*dto.UserResponse, e
 
 	res := mapper.ToUserResponse(user)
 	return res, nil
+}
+
+func (s *userService) CreateUser(ctx context.Context, req *dto.UserCreateRequest) error {
+	exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
+	if err != nil {
+		return errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
+	}
+
+	if exists {
+		return errorsx.NewError(errorsx.ErrConflict, "email already exists", err)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
+	}
+
+	user := &entities.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: string(hashedPassword),
+	}
+
+	err = s.userRepo.CreateWithRoles(ctx, user, req.RoleIDs)
+	if err != nil {
+		if err.Error() == "one or more roles not found" {
+			return errorsx.NewError(errorsx.ErrNotFound, "one or more roles not found", err)
+		}
+		return errorsx.NewError(errorsx.ErrInternal, "failed to create user with roles", err)
+	}
+
+	return nil
 }
 
 func (s *userService) GetAllUsers(ctx context.Context, params *httpx.QueryParams) ([]*dto.UserResponse, int64, error) {
@@ -134,6 +169,25 @@ func (s *userService) DeleteUser(ctx context.Context, id uint) error {
 
 	if err := s.userRepo.Delete(ctx, id); err != nil {
 		return errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
+	}
+
+	return nil
+}
+
+func (s *userService) AssignRoles(ctx context.Context, userID uint, req *dto.AssignRolesRequest) error {
+	_, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsx.NewError(errorsx.ErrNotFound, "user not found", err)
+		}
+		return errorsx.NewError(errorsx.ErrInternal, "failed to find user", err)
+	}
+
+	if err := s.userRepo.AssignRoles(ctx, userID, req.RoleIDs); err != nil {
+		if err.Error() == "one or more roles not found" {
+			return errorsx.NewError(errorsx.ErrNotFound, "one or more roles not found", err)
+		}
+		return errorsx.NewError(errorsx.ErrInternal, "failed to assign roles", err)
 	}
 
 	return nil

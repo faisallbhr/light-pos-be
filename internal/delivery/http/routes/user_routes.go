@@ -10,11 +10,13 @@ import (
 func RegisterUserRoutes(rg *gin.RouterGroup, handler *handler.UserHandler, db *database.DB) {
 	users := rg.Group("/users")
 	{
+		users.POST("/", middleware.PermissionMiddleware("manage_users", db), handler.CreateUser)
 		users.GET("/", middleware.PermissionMiddleware("manage_users", db), handler.GetAllUsers)
 		users.GET("/me", handler.Me)
 		users.GET("/:id", middleware.PermissionMiddleware("manage_users", db), handler.GetUserByID)
 		users.PATCH("/:id", handler.UpdateUser)
 		users.PATCH("/:id/password", handler.ChangePassword)
 		users.DELETE("/:id", middleware.PermissionMiddleware("manage_users", db), handler.DeleteUser)
+		users.POST("/:id/roles", middleware.PermissionMiddleware("manage_access", db), handler.AssignRoles)
 	}
 }

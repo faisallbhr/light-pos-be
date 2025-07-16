@@ -45,6 +45,25 @@ func (h *UserHandler) Me(c *gin.Context) {
 	httpx.ResponseSuccess(c, user, "user fetched successfully", http.StatusOK, nil)
 }
 
+func (h *UserHandler) CreateUser(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
+	defer cancel()
+
+	var req dto.UserCreateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
+		httpx.ResponseError(c, "invalid request body", statusCode, errors)
+		return
+	}
+
+	if err := h.userService.CreateUser(ctx, &req); err != nil {
+		httpx.HandleServiceError(c, err)
+		return
+	}
+
+	httpx.ResponseSuccess(c, nil, "user created successfully", http.StatusOK, nil)
+}
+
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
 	defer cancel()
@@ -162,4 +181,30 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	}
 
 	httpx.ResponseSuccess(c, nil, "user deleted successfully", http.StatusOK, nil)
+}
+
+func (h *UserHandler) AssignRoles(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
+	defer cancel()
+
+	id, err := httpx.ParseIDFromParam(c, "id")
+	if err != nil {
+		errors, statusCode := validatorx.TranslateErrorMessage(err, &id)
+		httpx.ResponseError(c, "invalid user id", statusCode, errors)
+		return
+	}
+
+	var req dto.AssignRolesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
+		httpx.ResponseError(c, "invalid request body", statusCode, errors)
+		return
+	}
+
+	if err := h.userService.AssignRoles(ctx, id, &req); err != nil {
+		httpx.HandleServiceError(c, err)
+		return
+	}
+
+	httpx.ResponseSuccess(c, nil, "roles assigned successfully", http.StatusOK, nil)
 }
