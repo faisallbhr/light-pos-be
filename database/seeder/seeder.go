@@ -33,7 +33,7 @@ func SeedAll(db *database.DB) {
 
 	for name, fn := range registry {
 		log.Printf("Seeding %s...", name)
-		fn(txDB) // sekarang cocok
+		fn(txDB)
 	}
 
 	if err := tx.Commit().Error; err != nil {

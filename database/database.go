@@ -70,12 +70,10 @@ func (db *DB) Close() error {
 	return sqlDB.Close()
 }
 
-// WithContext returns a new DB instance with context
 func (db *DB) WithContext(ctx context.Context) *DB {
 	return &DB{db.DB.WithContext(ctx)}
 }
 
-// Transaction wrapper with context
 func (db *DB) WithTransaction(ctx context.Context, fn func(*gorm.DB) error) error {
 	return db.WithContext(ctx).Transaction(fn)
 }
