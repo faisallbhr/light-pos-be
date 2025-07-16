@@ -42,10 +42,10 @@ func SetupRouter(db *database.DB) *gin.Engine {
 		AuthHandler: authHandler,
 	}
 
-	return InitRoutes(h, jwtManager)
+	return InitRoutes(h, jwtManager, db)
 }
 
-func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager) *gin.Engine {
+func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager, db *database.DB) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(middleware.CORSMiddleware())
@@ -57,7 +57,7 @@ func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager) *gin.Engine {
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware(jwtManager))
 
-	RegisterUserRoutes(protected, h.UserHandler)
+	RegisterUserRoutes(protected, h.UserHandler, db)
 
 	router.NoRoute(func(c *gin.Context) {
 		httpx.ResponseError(c, "route not found", http.StatusNotFound, nil)
