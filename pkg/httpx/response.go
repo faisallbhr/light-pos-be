@@ -45,6 +45,6 @@ func HandleServiceError(c *gin.Context, err error) {
 	case errorsx.ErrConflict:
 		ResponseError(c, err.Error(), http.StatusConflict, nil)
 	default:
-		ResponseError(c, "something went wrong", http.StatusInternalServerError, nil)
+		ResponseError(c, err.Error(), http.StatusInternalServerError, nil)
 	}
 }
