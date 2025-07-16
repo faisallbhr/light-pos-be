@@ -8,73 +8,44 @@ import (
 )
 
 func SeedRolePermissions(db *database.DB) {
-	log.Println("seeding users table...")
-
-	var count int64
-	db.Model(&entities.RolePermission{}).Count(&count)
-	if count > 0 {
-		log.Println("role permissions already seeded")
-	}
+	log.Println("seeding role-permission associations...")
 
 	var roles []entities.Role
-	if err := db.Find(&roles).Error; err != nil {
-		log.Fatalf("failed to fetch roles: %v", err)
-	}
-
 	var permissions []entities.Permission
-	if err := db.Find(&permissions).Error; err != nil {
-		log.Fatalf("failed to fetch permissions: %v", err)
-	}
+	db.Find(&roles)
+	db.Find(&permissions)
 
-	roleMap := map[string]uint{}
-	for _, r := range roles {
-		roleMap[r.Name] = r.ID
-	}
-
-	permMap := map[string]uint{}
+	permMap := map[string]entities.Permission{}
 	for _, p := range permissions {
-		permMap[p.Name] = p.ID
+		permMap[p.Name] = p
 	}
 
-	var rolePerms []entities.RolePermission
+	for _, role := range roles {
+		var assignPerms []entities.Permission
 
-	for _, perm := range permissions {
-		rolePerms = append(rolePerms, entities.RolePermission{
-			RoleID:       roleMap["super admin"],
-			PermissionID: perm.ID,
-		})
+		switch role.Name {
+		case "super admin":
+			assignPerms = permissions
+		case "admin":
+			assignPerms = []entities.Permission{
+				permMap["manage_products"],
+				permMap["manage_inventory"],
+				permMap["manage_purchases"],
+				permMap["manage_sales"],
+				permMap["view_sales_reports"],
+				permMap["view_inventory_reports"],
+			}
+		case "cashier":
+			assignPerms = []entities.Permission{
+				permMap["manage_sales"],
+				permMap["view_sales_reports"],
+			}
+		}
+
+		if err := db.Model(&role).Association("Permissions").Replace(assignPerms); err != nil {
+			log.Fatalf("failed to assign permissions to %s: %v", role.Name, err)
+		}
 	}
 
-	adminPerms := []string{
-		"manage_products",
-		"manage_inventory",
-		"manage_purchases",
-		"manage_sales",
-		"view_sales_reports",
-		"view_inventory_reports",
-	}
-
-	for _, name := range adminPerms {
-		rolePerms = append(rolePerms, entities.RolePermission{
-			RoleID:       roleMap["admin"],
-			PermissionID: permMap[name],
-		})
-	}
-
-	cashierPerms := []string{
-		"manage_sales",
-		"view_sales_reports",
-	}
-	for _, name := range cashierPerms {
-		rolePerms = append(rolePerms, entities.RolePermission{
-			RoleID:       roleMap["cashier"],
-			PermissionID: permMap[name],
-		})
-	}
-
-	if err := db.Create(&rolePerms).Error; err != nil {
-		log.Fatalf("failed to seed role permissions: %v", err)
-	}
-
-	log.Println("seeded role_permissions table")
+	log.Println("role-permission associations seeded")
 }

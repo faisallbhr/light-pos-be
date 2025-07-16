@@ -8,53 +8,35 @@ import (
 )
 
 func SeedUserRoles(db *database.DB) {
-	log.Println("seeding user_roles table...")
-
-	var count int64
-	db.Model(&entities.UserRole{}).Count(&count)
-	if count > 0 {
-		log.Println("user_roles already seeded")
-		return
-	}
+	log.Println("seeding user-role associations...")
 
 	var users []entities.User
-	if err := db.Find(&users).Error; err != nil {
-		log.Fatalf("failed to fetch users: %v", err)
-	}
-
 	var roles []entities.Role
-	if err := db.Find(&roles).Error; err != nil {
-		log.Fatalf("failed to fetch roles: %v", err)
-	}
+	db.Find(&users)
+	db.Find(&roles)
 
-	userMap := map[string]uint{}
-	for _, u := range users {
-		userMap[u.Email] = u.ID
-	}
-
-	roleMap := map[string]uint{}
+	roleMap := map[string]entities.Role{}
 	for _, r := range roles {
-		roleMap[r.Name] = r.ID
+		roleMap[r.Name] = r
 	}
 
-	userRoles := []entities.UserRole{
-		{
-			UserID: userMap["superadmin@mail.com"],
-			RoleID: roleMap["super admin"],
-		},
-		{
-			UserID: userMap["admin@mail.com"],
-			RoleID: roleMap["admin"],
-		},
-		{
-			UserID: userMap["cashier@mail.com"],
-			RoleID: roleMap["cashier"],
-		},
+	for _, u := range users {
+		var role entities.Role
+		switch u.Email {
+		case "superadmin@mail.com":
+			role = roleMap["super admin"]
+		case "admin@mail.com":
+			role = roleMap["admin"]
+		case "cashier@mail.com":
+			role = roleMap["cashier"]
+		default:
+			continue
+		}
+
+		if err := db.Model(&u).Association("Roles").Replace([]entities.Role{role}); err != nil {
+			log.Fatalf("failed to assign role to %s: %v", u.Email, err)
+		}
 	}
 
-	if err := db.Create(&userRoles).Error; err != nil {
-		log.Fatalf("failed to seed user_roles: %v", err)
-	}
-
-	log.Println("seeded user_roles table")
+	log.Println("user-role associations seeded")
 }
