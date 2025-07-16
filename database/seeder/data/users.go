@@ -10,6 +10,7 @@ import (
 
 func SeedUsers(db *database.DB) {
 	log.Println("seeding users table...")
+
 	var count int64
 	db.Model(&entities.User{}).Count(&count)
 	if count > 0 {
@@ -21,8 +22,18 @@ func SeedUsers(db *database.DB) {
 
 	users := []entities.User{
 		{
-			Name:     "Faisal",
-			Email:    "faisal@mail.com",
+			Name:     "Super Admin",
+			Email:    "superadmin@mail.com",
+			Password: string(hashed),
+		},
+		{
+			Name:     "Admin",
+			Email:    "admin@mail.com",
+			Password: string(hashed),
+		},
+		{
+			Name:     "Cashier",
+			Email:    "cashier@mail.com",
 			Password: string(hashed),
 		},
 	}
@@ -30,5 +41,6 @@ func SeedUsers(db *database.DB) {
 	if err := db.Create(&users).Error; err != nil {
 		log.Fatalf("failed to seed users: %v", err)
 	}
+
 	log.Println("seeded users table")
 }
