@@ -57,7 +57,7 @@ func (s *authService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Lo
 	user, err := s.authRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.NewError(errorsx.ErrNotFound, "user not found", err)
+			return nil, errorsx.NewError(errorsx.ErrUnauthorized, "invalid credentials", err)
 		}
 		return nil, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
