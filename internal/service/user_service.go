@@ -6,6 +6,7 @@ import (
 
 	"github.com/faisallbhr/light-pos-be/internal/dto"
 	"github.com/faisallbhr/light-pos-be/internal/repository"
+	"github.com/faisallbhr/light-pos-be/internal/service/mapper"
 	"github.com/faisallbhr/light-pos-be/pkg/errorsx"
 	"github.com/faisallbhr/light-pos-be/pkg/httpx"
 	"golang.org/x/crypto/bcrypt"
@@ -40,11 +41,8 @@ func (s *userService) Me(ctx context.Context, userID uint) (*dto.UserResponse, e
 		return nil, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
-	return &dto.UserResponse{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	res := mapper.ToUserResponse(user)
+	return res, nil
 }
 
 func (s *userService) GetAllUsers(ctx context.Context, params *httpx.QueryParams) ([]*dto.UserResponse, int64, error) {
@@ -53,16 +51,8 @@ func (s *userService) GetAllUsers(ctx context.Context, params *httpx.QueryParams
 		return nil, 0, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
-	result := make([]*dto.UserResponse, 0, len(users))
-	for _, user := range users {
-		result = append(result, &dto.UserResponse{
-			ID:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
-		})
-	}
-
-	return result, total, nil
+	res := mapper.ToUserResponses(users)
+	return res, total, nil
 }
 
 func (s *userService) GetUserByID(ctx context.Context, id uint) (*dto.UserResponse, error) {
@@ -74,11 +64,8 @@ func (s *userService) GetUserByID(ctx context.Context, id uint) (*dto.UserRespon
 		return nil, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
-	return &dto.UserResponse{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	res := mapper.ToUserResponse(user)
+	return res, nil
 }
 
 func (s *userService) UpdateUser(ctx context.Context, id uint, req *dto.UserUpdateRequest) (*dto.UserResponse, error) {
@@ -106,11 +93,8 @@ func (s *userService) UpdateUser(ctx context.Context, id uint, req *dto.UserUpda
 		return nil, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
-	return &dto.UserResponse{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	res := mapper.ToUserResponse(user)
+	return res, nil
 }
 
 func (s *userService) ChangePassword(ctx context.Context, id uint, req *dto.ChangePasswordRequest) error {

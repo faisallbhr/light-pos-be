@@ -1,9 +1,15 @@
 package dto
 
 type UserResponse struct {
-	ID    uint   `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    uint           `json:"id"`
+	Name  string         `json:"name"`
+	Email string         `json:"email"`
+	Roles []RoleResponse `json:"roles"`
+}
+
+type RoleResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 type UserUpdateRequest struct {
