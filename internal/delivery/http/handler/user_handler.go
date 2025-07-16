@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/faisallbhr/light-pos-be/internal/dto"
+	"github.com/faisallbhr/light-pos-be/internal/entities"
 	"github.com/faisallbhr/light-pos-be/internal/service"
 	"github.com/faisallbhr/light-pos-be/pkg/httpx"
+	"github.com/faisallbhr/light-pos-be/pkg/utils"
 	"github.com/faisallbhr/light-pos-be/pkg/validatorx"
 	"github.com/gin-gonic/gin"
 )
@@ -51,6 +53,12 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	if err := c.ShouldBindQuery(&params); err != nil {
 		errors, statusCode := validatorx.TranslateErrorMessage(err, &params)
 		httpx.ResponseError(c, "invalid query parameters", statusCode, errors)
+		return
+	}
+
+	validFields := utils.GetStructFieldNames[entities.User]()
+	if !params.IsValidOrderField(validFields) {
+		httpx.ResponseError(c, "invalid order field", http.StatusBadRequest, nil)
 		return
 	}
 

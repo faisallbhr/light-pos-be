@@ -1,11 +1,16 @@
 package httpx
 
+import (
+	"slices"
+	"strings"
+)
+
 type QueryParams struct {
-	Page    *int    `json:"page"`
-	Limit   *int    `json:"limit"`
-	Search  *string `json:"search"`
-	OrderBy *string `json:"order_by"`
-	Sort    *string `json:"sort" `
+	Page    *int    `form:"page"`
+	Limit   *int    `form:"limit"`
+	Search  *string `form:"search"`
+	OrderBy *string `form:"order_by"`
+	Sort    *string `form:"sort" `
 }
 
 func (q *QueryParams) GetSearch() string {
@@ -16,8 +21,8 @@ func (q *QueryParams) GetSearch() string {
 }
 
 func (q *QueryParams) GetSort() string {
-	if q.Sort != nil {
-		return *q.Sort
+	if q.Sort != nil && (strings.ToUpper(*q.Sort) == "ASC" || strings.ToUpper(*q.Sort) == "DESC") {
+		return strings.ToUpper(*q.Sort)
 	}
 	return "DESC"
 }
@@ -48,4 +53,11 @@ func (q *QueryParams) Offset() int {
 		return (*q.Page - 1) * *q.Limit
 	}
 	return 0
+}
+
+func (q *QueryParams) IsValidOrderField(validFields []string) bool {
+	if q.OrderBy == nil || *q.OrderBy == "" {
+		return true
+	}
+	return slices.Contains(validFields, *q.OrderBy)
 }
