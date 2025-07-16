@@ -46,7 +46,6 @@ func SeedRolePermissions(db *database.DB) {
 	}
 
 	adminPerms := []string{
-		"manage_users",
 		"manage_products",
 		"manage_inventory",
 		"manage_purchases",

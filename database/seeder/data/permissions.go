@@ -22,7 +22,7 @@ func SeedPermissions(db *database.DB) {
 			Name: "manage_users",
 		},
 		{
-			Name: "manage_roles_and_permissions",
+			Name: "manage_access",
 		},
 		{
 			Name: "manage_products",
