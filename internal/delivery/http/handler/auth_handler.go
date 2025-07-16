@@ -24,25 +24,6 @@ func NewAuthHandler(authService service.AuthService, timeout time.Duration) *Aut
 	}
 }
 
-func (h *AuthHandler) Register(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
-	defer cancel()
-
-	var req dto.RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
-		httpx.ResponseError(c, "invalid request body", statusCode, errors)
-		return
-	}
-
-	if err := h.authService.Register(ctx, &req); err != nil {
-		httpx.HandleServiceError(c, err)
-		return
-	}
-
-	httpx.ResponseSuccess(c, nil, "user registered successfully", http.StatusOK, nil)
-}
-
 func (h *AuthHandler) Login(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
 	defer cancel()

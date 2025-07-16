@@ -10,7 +10,6 @@ import (
 type AuthRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	Create(ctx context.Context, user *entities.User) error
 }
 
 type authRepository struct {
@@ -39,8 +38,4 @@ func (r *authRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 		return false, err
 	}
 	return count > 0, nil
-}
-
-func (r *authRepository) Create(ctx context.Context, user *entities.User) error {
-	return r.BaseRepository.Create(ctx, user)
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/faisallbhr/light-pos-be/internal/dto"
-	"github.com/faisallbhr/light-pos-be/internal/entities"
 	"github.com/faisallbhr/light-pos-be/internal/repository"
 	"github.com/faisallbhr/light-pos-be/pkg/errorsx"
 	"github.com/faisallbhr/light-pos-be/pkg/jwtx"
@@ -14,7 +13,6 @@ import (
 )
 
 type AuthService interface {
-	Register(ctx context.Context, req *dto.RegisterRequest) error
 	Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error)
 	Refresh(ctx context.Context, req *dto.RefreshRequest) (*dto.TokenResponse, error)
 }
@@ -29,28 +27,6 @@ func NewAuthService(authRepo repository.AuthRepository, jwtManager *jwtx.JWTMana
 		authRepo:   authRepo,
 		jwtManager: jwtManager,
 	}
-}
-
-func (s *authService) Register(ctx context.Context, req *dto.RegisterRequest) error {
-	exists, err := s.authRepo.ExistsByEmail(ctx, req.Email)
-	if err != nil {
-		return errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
-	}
-
-	if exists {
-		return errorsx.NewError(errorsx.ErrConflict, "email already exists", err)
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
-	}
-
-	return s.authRepo.Create(ctx, &entities.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-	})
 }
 
 func (s *authService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
