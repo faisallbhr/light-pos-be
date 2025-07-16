@@ -29,11 +29,35 @@ func NewUserRepository(db *database.DB) UserRepository {
 }
 
 func (r *userRepository) FindAll(ctx context.Context, params *httpx.QueryParams) ([]*entities.User, int64, error) {
-	return r.BaseRepository.FindAll(ctx, params, []string{"name", "email"})
+	var users []*entities.User
+	var total int64
+
+	db := r.db.WithContext(ctx).Model(&entities.User{}).Preload("Roles")
+
+	search := params.GetSearch()
+	if search != "" {
+		db = db.Where("name LIKE ? OR email LIKE ?", "%"+search+"%", "%"+search+"%")
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	db = db.Order(params.GetOrderBy() + " " + params.GetSort()).
+		Offset(params.Offset()).
+		Limit(params.GetLimit())
+
+	if err := db.Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id uint) (*entities.User, error) {
-	return r.BaseRepository.FindByID(ctx, id)
+	var user entities.User
+	err := r.db.WithContext(ctx).Preload("Roles").First(&user, id).Error
+	return &user, err
 }
 
 func (r *userRepository) Update(ctx context.Context, user *entities.User) error {

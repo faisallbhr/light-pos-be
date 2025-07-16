@@ -1,10 +1,5 @@
 package httpx
 
-import (
-	"github.com/faisallbhr/light-pos-be/database"
-	"gorm.io/gorm"
-)
-
 type Meta struct {
 	Search     *Search     `json:"search"`
 	Sort       *Sort       `json:"sort"`
@@ -51,29 +46,4 @@ func BuildMeta(meta *QueryParams, total int64) *Meta {
 			TotalPages: totalPages,
 		},
 	}
-}
-
-func ApplyMetaQuery(db *database.DB, model any, params *QueryParams, searchFields []string) (*gorm.DB, int64, error) {
-	query := db.Model(model)
-	search := params.GetSearch()
-
-	if search != "" && len(searchFields) > 0 {
-		for i, field := range searchFields {
-			if i == 0 {
-				query = query.Where(field+" LIKE ?", "%"+search+"%")
-			} else {
-				query = query.Or(field+" LIKE ?", "%"+search+"%")
-			}
-		}
-	}
-
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	query = query.Order(params.GetOrderBy() + " " + params.GetSort())
-	query = query.Offset(params.Offset()).Limit(params.GetLimit())
-
-	return query, total, nil
 }
