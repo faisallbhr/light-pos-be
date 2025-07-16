@@ -9,8 +9,8 @@ CREATE TABLE
         real_stock INT NOT NULL,
         difference INT NOT NULL,
         note TEXT,
-        FOREIGN key (stock_opname_id) REFERENCES stock_opnames (id),
-        FOREIGN key (product_id) REFERENCES products (id)
+        FOREIGN key (stock_opname_id) REFERENCES stock_opnames (id) ON DELETE CASCADE,
+        FOREIGN key (product_id) REFERENCES products (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down

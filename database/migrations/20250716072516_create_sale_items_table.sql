@@ -8,8 +8,8 @@ CREATE TABLE
         quantity INT NOT NULL,
         sell_price INT NOT NULL,
         total_price INT NOT NULL,
-        FOREIGN key (sale_id) REFERENCES sales (id),
-        FOREIGN key (product_id) REFERENCES products (id)
+        FOREIGN key (sale_id) REFERENCES sales (id) ON DELETE CASCADE,
+        FOREIGN key (product_id) REFERENCES products (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down

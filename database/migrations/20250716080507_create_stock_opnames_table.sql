@@ -6,7 +6,7 @@ CREATE TABLE
         opname_date DATE NOT NULL,
         user_id BIGINT UNSIGNED NOT NULL,
         note TEXT,
-        FOREIGN key (user_id) REFERENCES users (id)
+        FOREIGN key (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down

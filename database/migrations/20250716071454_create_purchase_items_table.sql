@@ -9,8 +9,8 @@ CREATE TABLE
         buy_price INT NOT NULL,
         total_price INT NOT NULL,
         remaining_quantity INT NOT NULL,
-        FOREIGN key (purchase_id) REFERENCES purchases (id),
-        FOREIGN key (product_id) REFERENCES products (id)
+        FOREIGN key (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE,
+        FOREIGN key (product_id) REFERENCES products (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down

@@ -10,7 +10,7 @@ CREATE TABLE
         payment_type VARCHAR(50) NOT NULL,
         paid_amount INT NOT NULL,
         `change` INT NOT NULL,
-        FOREIGN key (user_id) REFERENCES users (id)
+        FOREIGN key (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down

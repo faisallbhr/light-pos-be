@@ -6,8 +6,8 @@ CREATE TABLE
         sale_id BIGINT UNSIGNED NOT NULL,
         purchase_item_id BIGINT UNSIGNED NOT NULL,
         quantity INT NOT NULL,
-        FOREIGN key (sale_id) REFERENCES sales (id),
-        FOREIGN key (purchase_item_id) REFERENCES purchase_items (id)
+        FOREIGN key (sale_id) REFERENCES sales (id) ON DELETE CASCADE,
+        FOREIGN key (purchase_item_id) REFERENCES purchase_items (id) ON DELETE CASCADE
     );
 -- +goose StatementEnd
 -- +goose Down
