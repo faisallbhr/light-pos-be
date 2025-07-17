@@ -14,6 +14,7 @@ var registry = map[string]func(*database.DB){
 	"permissions":      data.SeedPermissions,
 	"role_permissions": data.SeedRolePermissions,
 	"user_roles":       data.SeedUserRoles,
+	"suppliers":        data.SeedSuppliers,
 }
 
 func SeedAll(db *database.DB) {
@@ -32,7 +33,7 @@ func SeedAll(db *database.DB) {
 	}()
 
 	for name, fn := range registry {
-		log.Printf("Seeding %s...", name)
+		log.Printf("seeding %s...", name)
 		fn(txDB)
 	}
 
