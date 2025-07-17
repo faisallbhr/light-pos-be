@@ -16,8 +16,9 @@ import (
 )
 
 type HandlerRegistry struct {
-	AuthHandler *handler.AuthHandler
-	UserHandler *handler.UserHandler
+	AuthHandler    *handler.AuthHandler
+	UserHandler    *handler.UserHandler
+	ProductHandler *handler.ProductHandler
 }
 
 func SetupRouter(db *database.DB) *gin.Engine {
@@ -37,9 +38,14 @@ func SetupRouter(db *database.DB) *gin.Engine {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService, 10*time.Second)
 
+	productRepo := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productService, 10*time.Second)
+
 	h := &HandlerRegistry{
-		UserHandler: userHandler,
-		AuthHandler: authHandler,
+		UserHandler:    userHandler,
+		AuthHandler:    authHandler,
+		ProductHandler: productHandler,
 	}
 
 	return InitRoutes(h, jwtManager, db)
@@ -58,6 +64,7 @@ func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager, db *database.DB
 	protected.Use(middleware.AuthMiddleware(jwtManager))
 
 	RegisterUserRoutes(protected, h.UserHandler, db)
+	RegisterProductRoutes(protected, h.ProductHandler, db)
 
 	router.NoRoute(func(c *gin.Context) {
 		httpx.ResponseError(c, "route not found", http.StatusNotFound, nil)
