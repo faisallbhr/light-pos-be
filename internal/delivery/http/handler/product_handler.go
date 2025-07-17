@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -24,7 +25,9 @@ func NewProductHandler(productService service.ProductService, timeout time.Durat
 }
 
 func (h *ProductHandler) CreateOpeningStock(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx, cancel := context.WithTimeout(c.Request.Context(), h.timeout)
+	defer cancel()
+
 	var req dto.CreateOpeningStockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
