@@ -39,7 +39,9 @@ func (r *productRepository) CreateOpeningStock(ctx context.Context, product *ent
 		}
 		for _, category := range openingStock.Categories {
 			var existingCategory entities.Category
-			if err := tx.Where("name = ?", category).FirstOrCreate(&existingCategory, category).Error; err != nil {
+			if err := tx.Where("name = ?", category).FirstOrCreate(&existingCategory, entities.Category{
+				Name: category,
+			}).Error; err != nil {
 				return err
 			}
 
