@@ -11,5 +11,9 @@ func RegisterProductRoutes(rg *gin.RouterGroup, handler *handler.ProductHandler,
 	products := rg.Group("/products")
 	{
 		products.POST("/opening-stock", middleware.PermissionMiddleware("manage_products", db), handler.CreateOpeningStock)
+		products.GET("/", middleware.PermissionMiddleware("manage_products", db), handler.GetProducts)
+		products.GET("/:id", middleware.PermissionMiddleware("manage_products", db), handler.GetProductByID)
+		products.PUT("/:id", middleware.PermissionMiddleware("manage_products", db), handler.UpdateProduct)
+		products.DELETE("/:id", middleware.PermissionMiddleware("manage_products", db), handler.DeleteProduct)
 	}
 }
