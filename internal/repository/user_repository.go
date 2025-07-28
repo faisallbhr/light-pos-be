@@ -59,22 +59,22 @@ func (r *userRepository) FindAll(ctx context.Context, params *httpx.QueryParams)
 	var users []*entities.User
 	var total int64
 
-	db := r.db.WithContext(ctx).Model(&entities.User{}).Preload("Roles")
+	query := r.db.WithContext(ctx).Model(&entities.User{}).Preload("Roles")
 
 	search := params.GetSearch()
 	if search != "" {
-		db = db.Where("name LIKE ? OR email LIKE ?", "%"+search+"%", "%"+search+"%")
+		query = query.Where("name LIKE ? OR email LIKE ?", "%"+search+"%", "%"+search+"%")
 	}
 
-	if err := db.Count(&total).Error; err != nil {
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	db = db.Order(params.GetOrderBy() + " " + params.GetSort()).
+	query = query.Order(params.GetOrderBy() + " " + params.GetSort()).
 		Offset(params.Offset()).
 		Limit(params.GetLimit())
 
-	if err := db.Find(&users).Error; err != nil {
+	if err := query.Find(&users).Error; err != nil {
 		return nil, 0, err
 	}
 
