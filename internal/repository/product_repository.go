@@ -71,6 +71,7 @@ func (r *productRepository) CreateOpeningStock(ctx context.Context, product *ent
 			Type:          "opening_stock",
 			SupplierID:    1,
 			PurchaseDate:  time.Now(),
+			TotalPrice:    openingStock.Stock * openingStock.BuyPrice,
 		}
 
 		if err := tx.Create(purchase).Error; err != nil {
