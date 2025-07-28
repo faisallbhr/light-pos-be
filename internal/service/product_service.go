@@ -86,7 +86,7 @@ func (s *productService) GetProducts(ctx context.Context, params *httpx.QueryPar
 	if err != nil {
 		return nil, 0, errorsx.NewError(errorsx.ErrInternal, "failed to fetch products", err)
 	}
-	res := mapper.ToProductResponses(products)
+	res := mapper.ToProductsResponse(products)
 	return res, total, nil
 }
 

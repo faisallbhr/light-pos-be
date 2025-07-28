@@ -23,7 +23,7 @@ func ToProductResponse(product *entities.Product) *dto.ProductResponse {
 	}
 }
 
-func ToProductResponses(products []*entities.Product) []*dto.ProductResponse {
+func ToProductsResponse(products []*entities.Product) []*dto.ProductResponse {
 	res := make([]*dto.ProductResponse, 0, len(products))
 	for _, product := range products {
 		res = append(res, ToProductResponse(product))

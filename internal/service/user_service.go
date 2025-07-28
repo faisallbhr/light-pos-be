@@ -86,7 +86,7 @@ func (s *userService) GetAllUsers(ctx context.Context, params *httpx.QueryParams
 		return nil, 0, errorsx.NewError(errorsx.ErrInternal, "something went wrong", err)
 	}
 
-	res := mapper.ToUserResponses(users)
+	res := mapper.ToUsersResponse(users)
 	return res, total, nil
 }
 

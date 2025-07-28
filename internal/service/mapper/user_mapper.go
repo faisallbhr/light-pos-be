@@ -22,7 +22,7 @@ func ToUserResponse(user *entities.User) *dto.UserResponse {
 	}
 }
 
-func ToUserResponses(users []*entities.User) []*dto.UserResponse {
+func ToUsersResponse(users []*entities.User) []*dto.UserResponse {
 	res := make([]*dto.UserResponse, 0, len(users))
 	for _, user := range users {
 		res = append(res, ToUserResponse(user))
