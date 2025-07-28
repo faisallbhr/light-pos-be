@@ -5,13 +5,13 @@ import (
 	"github.com/faisallbhr/light-pos-be/internal/entities"
 )
 
-func ToProductResponse(product *entities.Product) *dto.UpdateProductResponse {
+func ToProductResponse(product *entities.Product) *dto.ProductResponse {
 	var categories []string
 	for _, c := range product.Categories {
 		categories = append(categories, c.Name)
 	}
 
-	return &dto.UpdateProductResponse{
+	return &dto.ProductResponse{
 		ID:         product.ID,
 		Name:       product.Name,
 		SKU:        product.SKU,
@@ -23,8 +23,8 @@ func ToProductResponse(product *entities.Product) *dto.UpdateProductResponse {
 	}
 }
 
-func ToProductResponses(products []*entities.Product) []*dto.UpdateProductResponse {
-	res := make([]*dto.UpdateProductResponse, 0, len(products))
+func ToProductResponses(products []*entities.Product) []*dto.ProductResponse {
+	res := make([]*dto.ProductResponse, 0, len(products))
 	for _, product := range products {
 		res = append(res, ToProductResponse(product))
 	}

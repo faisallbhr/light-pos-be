@@ -31,18 +31,21 @@ func (h *ProductHandler) CreateOpeningStock(c *gin.Context) {
 	defer cancel()
 
 	var req dto.CreateOpeningStockRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
 		httpx.ResponseError(c, "invalid request body", statusCode, errors)
 		return
 	}
 
-	if err := h.productService.CreateOpeningStock(ctx, &req); err != nil {
+	imageFile, _ := c.FormFile("image")
+
+	product, err := h.productService.CreateOpeningStock(ctx, &req, imageFile)
+	if err != nil {
 		httpx.HandleServiceError(c, err)
 		return
 	}
 
-	httpx.ResponseSuccess(c, nil, "opening stock created successfully", http.StatusOK, nil)
+	httpx.ResponseSuccess(c, product, "opening stock created successfully", http.StatusOK, nil)
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
@@ -102,7 +105,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	}
 
 	var req dto.UpdateProductRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		errors, statusCode := validatorx.TranslateErrorMessage(err, &req)
 		httpx.ResponseError(c, "invalid request body", statusCode, errors)
 		return

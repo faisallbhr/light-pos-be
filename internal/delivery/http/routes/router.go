@@ -55,6 +55,7 @@ func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager, db *database.DB
 	router := gin.Default()
 
 	router.Use(middleware.CORSMiddleware())
+	router.Static("/storage", "./storage")
 
 	api := router.Group("/api")
 

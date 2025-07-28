@@ -34,3 +34,7 @@ Thumbs.db
 
 # GORM migration timestamps
 /database/migrations/*.tmp
+
+
+# Storage directory
+/storage/
