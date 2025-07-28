@@ -38,7 +38,7 @@ func (r *productRepository) Create(ctx context.Context, product *entities.Produc
 }
 
 func (r *productRepository) CreateOpeningStock(ctx context.Context, product *entities.Product, openingStock *dto.CreateOpeningStockRequest) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return r.db.WithTransaction(ctx, func(tx *gorm.DB) error {
 		if err := tx.Create(product).Error; err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func (r *productRepository) ExistsBySKU(ctx context.Context, sku string) (bool, 
 }
 
 func (r *productRepository) UpdateWithCategories(ctx context.Context, product *entities.Product, categories []string) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return r.db.WithTransaction(ctx, func(tx *gorm.DB) error {
 		if err := tx.Save(product).Error; err != nil {
 			return err
 		}
