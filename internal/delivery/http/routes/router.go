@@ -16,9 +16,10 @@ import (
 )
 
 type HandlerRegistry struct {
-	AuthHandler    *handler.AuthHandler
-	UserHandler    *handler.UserHandler
-	ProductHandler *handler.ProductHandler
+	AuthHandler     *handler.AuthHandler
+	UserHandler     *handler.UserHandler
+	ProductHandler  *handler.ProductHandler
+	CategoryHandler *handler.CategoryHandler
 }
 
 func SetupRouter(db *database.DB) *gin.Engine {
@@ -38,14 +39,19 @@ func SetupRouter(db *database.DB) *gin.Engine {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService, 10*time.Second)
 
+	categoryRepo := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryService, 10*time.Second)
+
 	productRepo := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepo)
 	productHandler := handler.NewProductHandler(productService, 10*time.Second)
 
 	h := &HandlerRegistry{
-		UserHandler:    userHandler,
-		AuthHandler:    authHandler,
-		ProductHandler: productHandler,
+		UserHandler:     userHandler,
+		AuthHandler:     authHandler,
+		ProductHandler:  productHandler,
+		CategoryHandler: categoryHandler,
 	}
 
 	return InitRoutes(h, jwtManager, db)
@@ -65,6 +71,7 @@ func InitRoutes(h *HandlerRegistry, jwtManager *jwtx.JWTManager, db *database.DB
 	protected.Use(middleware.AuthMiddleware(jwtManager))
 
 	RegisterUserRoutes(protected, h.UserHandler, db)
+	RegisterCategoryRoutes(protected, h.CategoryHandler, db)
 	RegisterProductRoutes(protected, h.ProductHandler, db)
 
 	router.NoRoute(func(c *gin.Context) {
